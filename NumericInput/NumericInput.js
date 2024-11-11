@@ -45,7 +45,6 @@ export default class NumericInput extends Component {
 
   componentDidUpdate() {
     const initSent = !(this.props.initValue !== 0 && !this.props.initValue);
-
     // compare the new value (props.initValue) with the existing/old one (this.state.value)
 
     if (this.props.initValue !== this.state.value && initSent) {
@@ -199,7 +198,7 @@ export default class NumericInput extends Component {
   };
 
   addDecimalSeparator(str) {
-    return str.length < 2 ? str : str.slice(0, -2) + "," + str.slice(-2);
+    return str.length < this.props.decimalPlaces ? str : str.slice(0, -this.props.decimalPlaces) + "," + str.slice(-this.props.decimalPlaces);
   }
 
   onChange = (input) => {
@@ -222,7 +221,9 @@ export default class NumericInput extends Component {
       return;
     }
 
+    console.log(cleanedInput);
     newValue = this.addDecimalSeparator(cleanedInput);
+    console.log(newValue);
     newValue = this.format(newValue);
 
     this.setState({ stringValue: newValue });
