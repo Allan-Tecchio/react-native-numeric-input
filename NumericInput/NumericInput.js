@@ -78,18 +78,28 @@ export default class NumericInput extends Component {
       this.props.maxValue === null ||
       value + this.props.step < this.props.maxValue
     ) {
+
       value = (value + this.props.step).toFixed(this.props.decimalPlaces);
 
       value =
         this.props.valueType === "real" ? parseFloat(value) : parseInt(value);
 
-      this.setState({ value, stringValue: this.formatNumber(value) });
+      if (this.props.valueType === "real") {
+        this.setState({ value, stringValue: this.formatNumber(value) });
+      } else {
+        this.setState({ value, stringValue: value.toString() });
+      }
+      
     } else if (this.props.maxValue !== null) {
       this.props.onLimitReached(true, "Reached Maximum Value!");
 
       value = this.props.maxValue;
 
-      this.setState({ value, stringValue: this.formatNumber(value) });
+      if (this.props.valueType === "real") {
+        this.setState({ value, stringValue: this.formatNumber(value) });
+      } else {
+        this.setState({ value, stringValue: value.toString() });
+      }
     }
 
     if (value !== this.props.value)
@@ -119,7 +129,11 @@ export default class NumericInput extends Component {
     if (value !== this.props.value)
       this.props.onChange && this.props.onChange(Number(value));
 
-    this.setState({ value, stringValue: this.formatNumber(value) });
+    if (this.props.valueType === "real") {
+      this.setState({ value, stringValue: this.formatNumber(value) });
+    } else {
+      this.setState({ value, stringValue: value.toString() });
+    }
   };
 
   isLegalValue = (value, mReal, mInt) =>
@@ -191,12 +205,24 @@ export default class NumericInput extends Component {
   onChange = (input) => {
     if (isNaN(input.replace(",", "."))) {
       input = "0,00";
-    }
+    } 
 
     let cleanedInput = input.replace(/[^0-9]/g, "");
 
-    let newValue = this.addDecimalSeparator(cleanedInput);
+    let newValue;
 
+    if (this.props.valueType !== "real") {
+      if (cleanedInput === '') {
+        cleanedInput = 0;
+      }
+      newValue = parseInt(cleanedInput);
+      this.setState({ stringValue: newValue.toString() });
+      this.setState({ value: newValue });
+      this.props.onChange(newValue);
+      return;
+    }
+
+    newValue = this.addDecimalSeparator(cleanedInput);
     newValue = this.format(newValue);
 
     this.setState({ stringValue: newValue });
